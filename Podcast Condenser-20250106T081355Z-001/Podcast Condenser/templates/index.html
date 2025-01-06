@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Video Summarizer</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f4f8;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        header {
+            width: 100%;
+            padding: 30px 20px;
+            background: linear-gradient(45deg, #ff5e62, #ff9966);
+            color: white;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: relative;
+            border-bottom: 3px solid #ff8a47;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 2.8em;
+            font-weight: bold;
+            text-shadow: 3px 3px 5px rgba(0, 0, 0, 0.3);
+        }
+        main {
+            width: 80%;
+            max-width: 900px;
+            background: white;
+            padding: 30px;
+            margin: 20px 0;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        label {
+            font-size: 1.1em;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        input, textarea {
+            width: 80%;
+            padding: 12px;
+            font-size: 16px;
+            border-radius: 10px;
+            border: 1px solid #ccc;
+            margin-bottom: 20px;
+            box-sizing: border-box;
+            transition: border 0.3s;
+        }
+        input:focus, textarea:focus {
+            border: 1px solid #ff5e62;
+            outline: none;
+        }
+        button {
+            padding: 15px 30px;
+            font-size: 18px;
+            color: white;
+            background-color: #ff5e62;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #ff9966;
+        }
+        .loader {
+            display: none;
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid #0078d7;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 2s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        footer {
+            width: 100%;
+            padding: 15px;
+            background: #ff5e62;
+            color: white;
+            text-align: center;
+            position: absolute;
+            bottom: 0;
+            box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.1);
+        }
+        footer h2 {
+            margin: 0;
+            font-size: 1.1em;
+        }
+        .logo-top-right {
+            position: absolute;
+            top: 100px;
+            right: 20px;
+            width: 150px;
+            height: 150px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>YouTube Video Summarizer</h1>
+    </header>
+    <main>
+        <label for="videoUrl">Enter YouTube Video URL:</label>
+        <input type="text" id="videoUrl" placeholder="Enter YouTube video URL">
+
+        <button onclick="summarizeVideo()">Summarize</button>
+
+        <div id="loader" class="loader"></div>
+
+        <label for="summary">Summary:</label>
+        <textarea id="summary" rows="10" readonly></textarea>
+
+        <img src="static/logo.png" class="logo-top-right" alt="Logo">
+    </main>
+    <footer>
+        <h2>Department of Computer Science Engineering</h2>
+    </footer>
+
+    <script>
+        async function summarizeVideo() {
+            const videoUrl = document.getElementById('videoUrl').value;
+            if (!videoUrl) {
+                return alert('Please enter a YouTube video URL');
+            }
+
+            document.getElementById('loader').style.display = 'block';
+            document.getElementById('summary').value = '';
+
+            try {
+                const response = await fetch('http://localhost:5000/summarize', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ url: videoUrl })
+                });
+
+                const result = await response.json();
+                if (response.ok) {
+                    document.getElementById('summary').value = result.summary;
+                } else {
+                    alert('Error: ' + result.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred while summarizing the video.');
+            } finally {
+                document.getElementById('loader').style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
